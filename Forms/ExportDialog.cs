@@ -15,6 +15,7 @@ namespace FocaExcelExport
         private Image _closeIconBase;
         private Image _openIconBase;
         private string _lastExportPath;
+        public bool Embedded { get; set; }
         
         public ExportDialog()
         {
@@ -204,9 +205,24 @@ namespace FocaExcelExport
 
         private async void ExportDialog_Load(object sender, EventArgs e)
         {
+            ApplyEmbeddedChrome();
             await LoadProjectsAsync();
             // Asegurar layout inicial correcto
             AdjustDialogLayout();
+        }
+
+        private void ApplyEmbeddedChrome()
+        {
+            if (!Embedded) return;
+            try
+            {
+                FormBorderStyle = FormBorderStyle.None;
+                ControlBox = false;
+                ShowIcon = false;
+                ShowInTaskbar = false;
+                StartPosition = FormStartPosition.Manual;
+            }
+            catch { }
         }
 
         private async Task LoadProjectsAsync()
@@ -586,6 +602,7 @@ namespace FocaExcelExport
 
         private void AdjustDialogHeight()
         {
+            if (Embedded) return;
             try
             {
                 int bottomVisible = 0;

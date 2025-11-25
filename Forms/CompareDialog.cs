@@ -14,6 +14,7 @@ namespace FocaExcelExport
         private Image _closeIconBase;
         private Image _openIconBase;
         private Image _compareIconBase;
+        public bool Embedded { get; set; }
 
         public CompareDialog()
         {
@@ -46,8 +47,28 @@ namespace FocaExcelExport
             btnOpen.Click += BtnOpen_Click;
 
             // Alinear botones y controles con la misma lógica que ExportDialog
-            this.Load += (s, e) => AdjustDialogLayout();
+            this.Load += CompareDialog_Load;
             this.SizeChanged += (s, e) => AdjustDialogLayout();
+        }
+
+        private void CompareDialog_Load(object sender, EventArgs e)
+        {
+            ApplyEmbeddedChrome();
+            AdjustDialogLayout();
+        }
+
+        private void ApplyEmbeddedChrome()
+        {
+            if (!Embedded) return;
+            try
+            {
+                FormBorderStyle = FormBorderStyle.None;
+                ControlBox = false;
+                ShowIcon = false;
+                ShowInTaskbar = false;
+                StartPosition = FormStartPosition.Manual;
+            }
+            catch { }
         }
 
         private void BrowseExcel(TextBox target, out string field)
@@ -235,6 +256,7 @@ namespace FocaExcelExport
 
         private void AdjustDialogHeight()
         {
+            if (Embedded) return;
             try
             {
                 int bottomVisible = 0;

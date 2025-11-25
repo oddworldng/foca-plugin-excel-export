@@ -40,6 +40,7 @@ namespace Foca
     using System.Windows.Forms;
     using PluginsAPI;
     using PluginsAPI.Elements;
+    using FocaExcelExport.Ui;
 
     internal static class PluginDiag
     {
@@ -85,6 +86,17 @@ namespace Foca
                 var pluginPanel = new PluginPanel(hostPanel, false);
                 this.export.Add(pluginPanel);
                 PluginDiag.Log("PluginPanel added");
+
+                try
+                {
+                    var mainControl = new MainControl { Dock = DockStyle.Fill };
+                    hostPanel.Controls.Add(mainControl);
+                    PluginDiag.Log("MainControl attached to host panel");
+                }
+                catch (Exception ex)
+                {
+                    PluginDiag.Log("Failed to attach MainControl: " + ex.Message);
+                }
 
                 var root = new ToolStripMenuItem(this._name);
                 
@@ -139,43 +151,19 @@ namespace Foca
                     }
                 }
                 
-                // Añadir submenús: Exportar y Comparar
-                var miExportar = new ToolStripMenuItem("Exportar");
-                miExportar.Click += (s, e) =>
+                root.Click += (s, e) =>
                 {
                     try
                     {
-                        var dialog = new FocaExcelExport.ExportDialog();
-                        dialog.ShowDialog();
+                        hostPanel.Visible = true;
+                        hostPanel.BringToFront();
+                        hostPanel.Focus();
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error al abrir 'Exportar': {ex.Message}",
-                            "Exportar",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error);
+                        PluginDiag.Log("Failed to show plugin panel: " + ex.Message);
                     }
                 };
-
-                var miComparar = new ToolStripMenuItem("Comparar");
-                miComparar.Click += (s, e) =>
-                {
-                    try
-                    {
-                        var dialog = new FocaExcelExport.CompareDialog();
-                        dialog.ShowDialog();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error al abrir 'Comparar': {ex.Message}",
-                            "Comparar",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error);
-                    }
-                };
-
-                root.DropDownItems.Add(miExportar);
-                root.DropDownItems.Add(miComparar);
 
                 var pluginMenu = new PluginToolStripMenuItem(root);
                 this.export.Add(pluginMenu);

@@ -74,6 +74,7 @@
     <Compile Include="Forms\CompareDialog.Designer.cs">
       <DependentUpon>CompareDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Ui\MainControl.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -125,16 +126,22 @@
     <EmbeddedResource Include="img\comparar.png" Condition="Exists('img\comparar.png')" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- Eliminar PDB, .config y cualquier DLL extra en Release para salida limpia del plugin -->
+  <!-- En Release solo limpiamos PDB y config del propio plugin; dejamos las DLL de dependencias (ClosedXML, etc.) -->
   <Target Name="PruneReleaseOutputs" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
     <ItemGroup>
-      <FilesToDelete Include="$(OutDir)FocaExcelExport.pdb" Condition="Exists('$(OutDir)FocaExcelExport.pdb')" />
-      <FilesToDelete Include="$(OutDir)FocaExcelExport.dll.config" Condition="Exists('$(OutDir)FocaExcelExport.dll.config')" />
-      <ExtraDlls Include="$(OutDir)*.dll" Exclude="$(OutDir)FocaExcelExport.dll;$(OutDir)PluginsAPI.dll" />
-      <PdbFiles Include="$(OutDir)*.pdb" />
+      <FilesToDelete Include="$(OutDir)FocaExcelExport.pdb"
+                     Condition="Exists('$(OutDir)FocaExcelExport.pdb')" />
+      <FilesToDelete Include="$(OutDir)FocaExcelExport.dll.config"
+                     Condition="Exists('$(OutDir)FocaExcelExport.dll.config')" />
     </ItemGroup>
     <Delete Files="@(FilesToDelete)" ContinueOnError="true" />
-    <Delete Files="@(ExtraDlls)" ContinueOnError="true" />
-    <Delete Files="@(PdbFiles)" ContinueOnError="true" />
+  </Target>
+  <!-- Eliminamos siempre ClosedXML.pdb del directorio de salida del plugin (plugin\ExportExcel\) -->
+  <Target Name="RemoveClosedXmlPdb" AfterTargets="Build">
+    <ItemGroup>
+      <FilesToDeleteClosedXml Include="$(OutDir)ClosedXML.pdb"
+                              Condition="Exists('$(OutDir)ClosedXML.pdb')" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDeleteClosedXml)" ContinueOnError="true" />
   </Target>
 </Project>
